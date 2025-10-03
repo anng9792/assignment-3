@@ -1,0 +1,101 @@
+* { 
+  box-sizing: border-box; 
+}
+
+body { 
+  font-family: system-ui, Arial, sans-serif; 
+  margin: 0; 
+  background: #f6f7fb; 
+  color: #111; 
+}
+
+.container { 
+  max-width: 760px; 
+  margin: 40px auto; 
+  padding: 0 16px; 
+}
+
+h1 { 
+  margin: 0 0 16px 0; 
+  font-weight: 700; 
+}
+
+.table { 
+  background: white; 
+  border: 1px solid #e5e7eb; 
+  border-radius: 10px; 
+  padding: 12px; 
+}
+
+.category { 
+  border: 1px solid #e5e7eb; 
+  border-radius: 8px; 
+  padding: 8px; 
+  margin: 12px 0; 
+}
+
+.categoryTitle { 
+  display: inline-block; 
+  background: #f2c8c8; 
+  padding: 4px 10px; 
+  border-radius: 999px; 
+  font-weight: 600; 
+  margin-bottom: 8px; 
+}
+
+.row { 
+  display: grid; 
+  grid-template-columns: 1fr 140px 40px; 
+  gap: 8px; 
+  align-items: center; 
+  padding: 6px 4px; 
+}
+
+.header { 
+  font-weight: 700; 
+  color: #374151; 
+  border-bottom: 1px solid #e5e7eb; 
+  margin-bottom: 8px; 
+}
+
+.cell { 
+  white-space: nowrap; 
+}
+
+.grow { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  min-width: 0; 
+}
+
+.task.done { 
+  text-decoration: line-through; 
+  color: #8e96a7; 
+}
+
+.add input[type="date"], .add input[type="text"], .add input:not([type]) { width: 100%; }
+input[type="text"], input:not([type]), input[type="date"] {
+  padding: 6px 8px; 
+  border: 1px solid #d1d5db; 
+  border-radius: 8px;
+}
+
+button { 
+  padding: 6px 12px; 
+  border-radius: 8px; 
+  border: 1px solid #d1d5db; 
+  background: #bc4949; 
+  color: white; 
+  cursor: pointer; 
+}
+
+button.ghost { 
+  background: transparent; 
+  color: #6b7280; 
+  border: 1px solid transparent; 
+}
+
+button:hover { 
+  filter: brightness(0.90); 
+}
