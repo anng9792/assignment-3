@@ -1,35 +1,24 @@
-import React from "react";
+import React, { useState } from "react";
 
-const MOCK = [
+const initialData = [
   {
     id: "school",
     name: "School",
-    tasks: [
-      { id: "s1", 
-        text: "Task 1", 
-        due: "10-05-2025", 
-        done: false},
-      { id: "s2", 
-        text: "Task 2", 
-        due: "10-12-2025", 
-        done: true}
-    ]
+    tasks: []
   },
   {
     id: "work",
     name: "Work",
-    tasks: [
-      { id: "w1", 
-        text: "Task 1", 
-        due: "10-03-2025", 
-        done: true},
-      { id: "w2", 
-        text: "Task 2", 
-        due: "10-08-2025", 
-        done: false}
-    ]
+    tasks: []
   }
 ];
+
+function uid(prefix = "id") {
+  return `${prefix}_${Date.now().toString(36)}_${Math.random()
+    .toString(36)
+    .slice(2,7)
+  }`;
+}
 
 function TableHeader() {
   return (
@@ -41,61 +30,144 @@ function TableHeader() {
   );
 }
 
-function TaskRow({ task }) {
+function TaskRow({ task, onToggle, onRemove }) {
   return (
     <div className="row">
       <div className="cell grow">
-        <input type="checkbox" checked={task.done} readOnly />
+        <input 
+        type="checkbox" 
+        checked={task.done} 
+        onChange={() => onToggle(task.id)}
+        aria-label={`toggle ${task.text}`}
+        />
         <span className={`task ${task.done ? "done" : ""}`}>{task.text}</span>
       </div>
       <div className="cell">{task.due}</div>
       <div className="cell">
-        <button className="ghost" title="Remove">X</button>
+        <button className="ghost" onClick= {() => onRemove(task.id)} title="Remove">
+          X
+          </button>
       </div>
     </div>
   );
 }
 
-function AddTaskRow() {
+function AddTaskRow({ onAdd }) {
+  const [text, setText] = useState("");
+  const [due, setDue] = useState("");
+
+  function submit(e) {
+    e.preventDefault();
+    const clean = text.trim();
+    if (!clean) return;
+    onAdd({ id: uid("t"), text: clean, due: due || "", done: false });
+    setText("");
+    setDue("");
+  }
+
   return (
-    <div className="row add">
+    <form className="row add" onSubmit={submit}>
       <div className="cell grow">
-        <input placeholder="Add task" />
+        <input
+        placeholder="Add Task"
+        value={text}
+        onChange={e => setText(e.target.value)}
+        aria-label="task text"
+        />
       </div>
       <div className="cell">
-        <input type="date" />
+        <input
+          type="date"
+          value={due}
+          onChange={e => setDue(e.target.value)}
+          aria-label="due date"
+          />
       </div>
       <div className="cell">
-        <button>Add</button>
+        <button type="submit">Add</button>
       </div>
-    </div>
+    </form>
   );
 }
 
-function TaskCategorySection({ category }) {
+function TaskCategorySection({ category, onAddTask, onToggleTask, onRemoveTask }) {
   return (
     <div className="category">
       <div className="categoryTitle">{category.name}</div>
-      {category.tasks.map(t => <TaskRow key={t.id} task={t} />)}
-      <AddTaskRow />
+      {category.tasks.map(t => (
+        <TaskRow 
+        key={t.id} 
+        task={t}
+        onToggle={taskId => onToggleTask(category.id, taskId)}
+        onRemove={taskId => onRemoveTask(category.id, taskId)} 
+        />))}
+      <AddTaskRow onAdd={task => onAddTask(category.id, task)} />
     </div>
   );
 }
 
-function TaskTable({ data }) {
+function TaskTable({ data, onAddTask, onToggleTask, onRemoveTask }) {
   return (
     <div className="table">
     <TableHeader />
-    {data.map(cat => <TaskCategorySection key={cat.id} category={cat} />)}
+    {data.map(cat => (
+      <TaskCategorySection 
+      key={cat.id} 
+      category={cat} 
+      onAddTask={onAddTask}
+      onToggleTask={onToggleTask}
+      onRemoveTask={onRemoveTask}
+      />
+    ))}
     </div>
   );
 }
 
 export default function App() {
+  const [categories, setCategories] = useState(initialData);
+
+  function addTask(categoryId, newTask) {
+    setCategories(prev =>
+      prev.map(c =>
+        c.id === categoryId ? { ...c, tasks: [...c.tasks, newTask] } : c
+      )
+    );
+  }
+
+  function toggleTask(categoryId, taskId) {
+    setCategories(prev =>
+      prev.map(c =>
+        c.id === categoryId 
+        ? { 
+          ...c, 
+          tasks: c.tasks.map(t =>
+          t.id === taskId ? { ...t, done: !t.done } : t
+        )
+      }
+      : c
+      )
+    );
+  }
+
+  function removeTask(categoryId, taskId) {
+    setCategories(prev =>
+      prev.map(c =>
+        c.id === categoryId
+        ? { ...c, tasks: c.tasks.filter(t => t.id !== taskId) }
+        : c
+      )
+    );
+  }
+
   return (
     <main className="container">
       <h1>To Do List</h1>
-      <TaskTable data={MOCK} />
+      <TaskTable 
+      data={categories}
+      onAddTask={addTask}
+      onToggleTask={toggleTask}
+      onRemoveTask={removeTask}
+      />
     </main>
   );
 }
